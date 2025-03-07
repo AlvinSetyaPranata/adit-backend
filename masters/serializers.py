@@ -18,3 +18,8 @@ class ReligionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Religion
         fields = '__all__'
+
+class ReligionListSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(max_length=100)
+    code = serializers.CharField(max_length=10)
