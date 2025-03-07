@@ -7,3 +7,10 @@ class Religion(models.Model):
 
     class Meta:
         ordering = ['name']
+
+class Gender(models.Model):
+    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=10)
+
+    class Meta:
+        ordering = ['name']
