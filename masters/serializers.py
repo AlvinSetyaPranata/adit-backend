@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Religion, Gender
+from .models import Religion, Gender, Citizen
 
 class ReligionSerializer(serializers.ModelSerializer):
     # id = serializers.IntegerField(read_only=True)
@@ -33,4 +33,18 @@ class GenderListSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     name = serializers.CharField(max_length=100)
     code = serializers.CharField(max_length=10)
-    
+
+class CitizenSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(max_length=100)
+    code = serializers.CharField(max_length=10)
+
+class CitizenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Citizen
+        fields = '__all__'
+
+class CitizenListSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(max_length=100)
+    code = serializers.CharField(max_length=10)
