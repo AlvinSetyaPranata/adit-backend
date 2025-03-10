@@ -2,8 +2,8 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Religion, Gender, Citizen
-from .serializers import ReligionSerializer, ReligionListSerializer, GenderSerializer, GenderListSerializer, CitizenSerializer, CitizenListSerializer
+from .models import Religion, Gender, Citizen, Province
+from .serializers import ReligionSerializer, ReligionListSerializer, GenderSerializer, GenderListSerializer, CitizenSerializer, CitizenListSerializer, ProvinceSerializer, ProvinceListSerializer
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -224,4 +224,73 @@ class CitizenDetail(APIView):
     def delete(self, request, pk, format=None):
         citizen = self.get_object(pk)
         citizen.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class ProvinceList(APIView):
+
+    @swagger_auto_schema(
+        query_serializer=ProvinceListSerializer,
+        responses={200: ProvinceSerializer(many=True)},
+        tags=['Province'],
+    )
+    def get(self, request, format=None):
+        provinces = Province.objects.all()
+        serializer = ProvinceSerializer(provinces, many=True)
+        return Response(serializer.data)
+    
+    @swagger_auto_schema(
+        operation_description="Create a new province",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['name', 'code', 'meta'],
+            properties={
+                'name': openapi.Schema(type=openapi.TYPE_STRING),
+                'code': openapi.Schema(type=openapi.TYPE_STRING),
+                'meta': openapi.Schema(type=openapi.TYPE_OBJECT)
+            },
+        ),
+        security=[],
+        tags=['Province'],
+    )
+    def post(self, request, format=None):
+        serializer = ProvinceSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ProvinceDetail(APIView):
+    def get_object(self, pk):
+        try:
+            return Province.objects.get(pk=pk)
+        except Province.DoesNotExist:
+            raise Http404
+    
+    @swagger_auto_schema(
+        query_serializer=ProvinceSerializer,
+        responses={200: ProvinceSerializer},
+        tags=['Province'],
+    )
+    def get(self, request, pk, format=None):
+        province = self.get_object(pk)
+        serializer = ProvinceSerializer(province)
+        return Response(serializer.data)
+    
+    @swagger_auto_schema(
+        query_serializer=ProvinceSerializer,
+        request_body=ProvinceSerializer,
+        responses={200: ProvinceSerializer},
+        tags=['Province']
+    )
+    def put(self, request, pk, format=None):
+        province = self.get_object(pk)
+        serializer = ProvinceSerializer(province, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk, format=None):
+        province = self.get_object(pk)
+        province.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

@@ -22,3 +22,11 @@ class Citizen(models.Model):
 
     class Meta:
         ordering = ['name']
+
+class Province(models.Model):
+    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=10, unique=True)
+    meta = models.JSONField(default=dict)
+
+    class Meta:
+        ordering = ['name']
