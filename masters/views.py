@@ -149,18 +149,26 @@ class GenderDetail(APIView):
         gender = self.get_object(pk)
         gender.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def post(self, request, format=None):
+        serialzer = CitizenSerializer(data=request.data)
+        if serialzer.is_valid():
+            serialzer.save()
+            return Response(serialzer.data, status=status.HTTP_201_CREATED)
+        return Response(serialzer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class CitizenList(APIView):
+
     @swagger_auto_schema(
         query_serializer=CitizenListSerializer,
         responses={200: CitizenSerializer(many=True)},
         tags=['Citizen'],
     )
-
+        
     def get(self, request, format=None):
         citizens = Citizen.objects.all()
-        serialzer = CitizenSerializer(citizens, many=True)
-        return Response(serialzer.data)
+        serializer = CitizenSerializer(citizens, many=True)
+        return Response(serializer.data)
     
     @swagger_auto_schema(
         operation_description="apiview post description override",
@@ -175,13 +183,12 @@ class CitizenList(APIView):
         security=[],
         tags=['Citizen'],
     )
-
     def post(self, request, format=None):
-        serialzer = CitizenSerializer(data=request.data)
-        if serialzer.is_valid():
-            serialzer.save()
-            return Response(serialzer.data, status=status.HTTP_201_CREATED)
-        return Response(serialzer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = CitizenSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class CitizenDetail(APIView):
     def get_object(self, pk):
