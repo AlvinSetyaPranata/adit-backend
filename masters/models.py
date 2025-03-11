@@ -30,3 +30,12 @@ class Province(models.Model):
 
     class Meta:
         ordering = ['name']
+
+class Regency(models.Model):
+    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=10, unique=True)
+    province = models.ForeignKey(Province, on_delete=models.CASCADE)
+    meta = models.JSONField(default=dict)
+
+    class Meta:
+        ordering = ['name']
