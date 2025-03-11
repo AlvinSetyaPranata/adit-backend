@@ -48,3 +48,12 @@ class Subdistrict(models.Model):
 
     class Meta:
         ordering = ['name']
+
+class Village(models.Model):
+    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=10, unique=True)
+    subdistrict = models.ForeignKey(Subdistrict, on_delete=models.CASCADE)
+    meta = models.JSONField(default=dict)
+
+    class Meta:
+        ordering = ['name']

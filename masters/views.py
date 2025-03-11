@@ -2,8 +2,8 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Religion, Gender, Citizen, Province, Regency, Subdistrict
-from .serializers import ReligionSerializer, ReligionListSerializer, GenderSerializer, GenderListSerializer, CitizenSerializer, CitizenListSerializer, ProvinceSerializer, ProvinceListSerializer, RegencySerializer, RegencyListSerializer, SubdistrictSerializer, SubdistrictListSerializer
+from .models import Religion, Gender, Citizen, Province, Regency, Subdistrict, Village
+from .serializers import ReligionSerializer, ReligionListSerializer, GenderSerializer, GenderListSerializer, CitizenSerializer, CitizenListSerializer, ProvinceSerializer, ProvinceListSerializer, RegencySerializer, RegencyListSerializer, SubdistrictSerializer, SubdistrictListSerializer, VillageSerializer, VillageListSerializer
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -381,11 +381,12 @@ class SubdistrictList(APIView):
         operation_description="Create a new subdistrict",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
-            required=['name', 'code', 'regency'],
+            required=['name', 'code', 'regency', 'meta'],
             properties={
                 'name': openapi.Schema(type=openapi.TYPE_STRING),
                 'code': openapi.Schema(type=openapi.TYPE_STRING),
                 'regency': openapi.Schema(type=openapi.TYPE_INTEGER),
+                'meta': openapi.Schema(type=openapi.TYPE_OBJECT),
             },
         ),
         security=[],
@@ -433,4 +434,75 @@ class SubdistrictDetail(APIView):
     def delete(self, request, pk, format=None):
         subdistrict = self.get_object(pk)
         subdistrict.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class VillageList(APIView):
+    
+    @swagger_auto_schema(
+        query_serializer=VillageListSerializer,
+        responses={200: VillageSerializer(many=True)},
+        tags=['Village'],
+    )
+    def get(self, request, format=None):
+        villages = Village.objects.all()
+        serializer = VillageSerializer(villages, many=True)
+        return Response(serializer.data)
+    
+    @swagger_auto_schema(
+        operation_description="Create a new village",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['name', 'code', 'subdistrict', 'meta'],
+            properties={
+                'name': openapi.Schema(type=openapi.TYPE_STRING),
+                'code': openapi.Schema(type=openapi.TYPE_STRING),
+                'subdistrict': openapi.Schema(type=openapi.TYPE_INTEGER),
+                'meta': openapi.Schema(type=openapi.TYPE_OBJECT),
+            },
+        ),
+        security=[],
+        tags=['Village'],
+    )
+    def post(self, request, format=None):
+        serializer = VillageSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class VillageDetail(APIView):
+
+    def get_object(self, pk):
+        try:
+            return Village.objects.get(pk=pk)
+        except Village.DoesNotExist:
+            raise Http404
+        
+    @swagger_auto_schema(
+        query_serializer=VillageSerializer,
+        responses={200: VillageSerializer()},
+        tags=['Village']
+    )
+    def get(self, request, pk, format=None):
+        village = self.get_object(pk)
+        serializer = VillageSerializer(village)
+        return Response(serializer.data)
+    
+    @swagger_auto_schema(
+        query_serializer=VillageSerializer,
+        request_body=VillageSerializer,
+        responses={200: VillageSerializer()},
+        tags=['Village']
+    )
+    def put(self, request, pk, format=None):
+        village = self.get_object(pk)
+        serializer = VillageSerializer(village, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk, format=None):
+        village = self.get_object(pk)
+        village.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

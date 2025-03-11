@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Religion, Gender, Citizen, Province, Regency, Subdistrict
+from .models import Religion, Gender, Citizen, Province, Regency, Subdistrict, Village
 
 class ReligionSerializer(serializers.ModelSerializer):
     # id = serializers.IntegerField(read_only=True)
@@ -82,4 +82,16 @@ class SubdistrictListSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=100)
     code = serializers.CharField(max_length=10)
     regency = serializers.PrimaryKeyRelatedField(queryset=Regency.objects.all())
+    meta = serializers.JSONField(default=dict)
+
+class VillageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Village
+        fields = '__all__'
+
+class VillageListSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(max_length=100)
+    code = serializers.CharField(max_length=10)
+    subdistrict = serializers.PrimaryKeyRelatedField(queryset=Subdistrict.objects.all())
     meta = serializers.JSONField(default=dict)
