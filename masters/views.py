@@ -2,8 +2,8 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Religion, Gender, Citizen, Province, Regency
-from .serializers import ReligionSerializer, ReligionListSerializer, GenderSerializer, GenderListSerializer, CitizenSerializer, CitizenListSerializer, ProvinceSerializer, ProvinceListSerializer, RegencySerializer, RegencyListSerializer
+from .models import Religion, Gender, Citizen, Province, Regency, Subdistrict
+from .serializers import ReligionSerializer, ReligionListSerializer, GenderSerializer, GenderListSerializer, CitizenSerializer, CitizenListSerializer, ProvinceSerializer, ProvinceListSerializer, RegencySerializer, RegencyListSerializer, SubdistrictSerializer, SubdistrictListSerializer
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -363,4 +363,74 @@ class RegencyDetail(APIView):
     def delete(self, request, pk, format=None):
         regency = self.get_object(pk)
         regency.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class SubdistrictList(APIView):
+    
+    @swagger_auto_schema(
+        query_serializer=SubdistrictListSerializer,
+        responses={200: SubdistrictSerializer(many=True)},
+        tags=['Subdistrict'],
+    )
+    def get(self, request, format=None):
+        subdistricts = Subdistrict.objects.all()
+        serializer = SubdistrictSerializer(subdistricts, many=True)
+        return Response(serializer.data)
+    
+    @swagger_auto_schema(
+        operation_description="Create a new subdistrict",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['name', 'code', 'regency'],
+            properties={
+                'name': openapi.Schema(type=openapi.TYPE_STRING),
+                'code': openapi.Schema(type=openapi.TYPE_STRING),
+                'regency': openapi.Schema(type=openapi.TYPE_INTEGER),
+            },
+        ),
+        security=[],
+        tags=['Subdistrict'],
+    )
+    def post(self, request, format=None):
+        serializer = SubdistrictSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SubdistrictDetail(APIView):
+    def get_object(self, pk):
+        try:
+            return Subdistrict.objects.get(pk=pk)
+        except Subdistrict.DoesNotExist:
+            raise Http404
+        
+    @swagger_auto_schema(
+        query_serializer=SubdistrictSerializer,
+        responses={200: SubdistrictSerializer()},
+        tags=['Subdistrict']
+    )
+    def get(self, request, pk, format=None):
+        subdistrict = self.get_object(pk)
+        serializer = SubdistrictSerializer(subdistrict)
+        return Response(serializer.data)
+    
+    @swagger_auto_schema(
+        query_serializer=SubdistrictSerializer,
+        request_body=SubdistrictSerializer,
+        responses={200: SubdistrictSerializer()},
+        tags=['Subdistrict']
+    )
+    def put(self, request, pk, format=None):
+        subdistrict = self.get_object(pk)
+        serializer = SubdistrictSerializer(subdistrict, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk, format=None):
+        subdistrict = self.get_object(pk)
+        subdistrict.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

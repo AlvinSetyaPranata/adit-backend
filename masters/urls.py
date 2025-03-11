@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ReligionList, ReligionDetail, GenderList, GenderDetail, CitizenList, CitizenDetail, ProvinceList, ProvinceDetail, RegencyList, RegencyDetail
+from .views import ReligionList, ReligionDetail, GenderList, GenderDetail, CitizenList, CitizenDetail, ProvinceList, ProvinceDetail, RegencyList, RegencyDetail, SubdistrictList, SubdistrictDetail
 from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
@@ -12,7 +12,9 @@ urlpatterns = [
     path('provinces/', ProvinceList.as_view(), name='Provinces'),
     path('provinces/<int:pk>', ProvinceDetail.as_view(), name='Provinces'),
     path('regencies/', RegencyList.as_view(), name='Regencies'),
-    path('regencies/<int:pk>', RegencyDetail.as_view(), name='Regencies')
+    path('regencies/<int:pk>', RegencyDetail.as_view(), name='Regencies'),
+    path('subdistricts/', SubdistrictList.as_view(), name='Subdistricts'),
+    path('subdistricts/<int:pk>', SubdistrictDetail.as_view(), name='Subdistricts')
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
