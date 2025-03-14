@@ -57,3 +57,10 @@ class Village(models.Model):
 
     class Meta:
         ordering = ['name']
+
+class RegistrationPath(models.Model):
+    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=10)
+
+    class Meta:
+        ordering = ['name']

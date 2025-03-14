@@ -2,8 +2,8 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Religion, Gender, Citizen, Province, Regency, Subdistrict, Village
-from .serializers import ReligionSerializer, ReligionListSerializer, GenderSerializer, GenderListSerializer, CitizenSerializer, CitizenListSerializer, ProvinceSerializer, ProvinceListSerializer, RegencySerializer, RegencyListSerializer, SubdistrictSerializer, SubdistrictListSerializer, VillageSerializer, VillageListSerializer
+from .models import Religion, Gender, Citizen, Province, Regency, Subdistrict, Village, RegistrationPath
+from .serializers import ReligionSerializer, ReligionListSerializer, GenderSerializer, GenderListSerializer, CitizenSerializer, CitizenListSerializer, ProvinceSerializer, ProvinceListSerializer, RegencySerializer, RegencyListSerializer, SubdistrictSerializer, SubdistrictListSerializer, VillageSerializer, VillageListSerializer, RegistrationPathSerializer, RegistrationPathListSerializer
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -505,4 +505,73 @@ class VillageDetail(APIView):
     def delete(self, request, pk, format=None):
         village = self.get_object(pk)
         village.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class RegistrationPathList(APIView):
+
+    @swagger_auto_schema(
+        query_serializer=RegistrationPathListSerializer,
+        responses={200: RegistrationPathSerializer(many=True)},
+        tags=['RegistrationPath'],
+    )
+        
+    def get(self, request, format=None):
+        registrationpaths = RegistrationPath.objects.all()
+        serializer = RegistrationPathSerializer(registrationpaths, many=True)
+        return Response(serializer.data)
+    
+    @swagger_auto_schema(
+        operation_description="apiview post description override",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['name','code'],
+            properties={
+                'name': openapi.Schema(type=openapi.TYPE_STRING),
+                'code': openapi.Schema(type=openapi.TYPE_STRING)
+            },
+        ),
+        security=[],
+        tags=['RegistrationPath'],
+    )
+    def post(self, request, format=None):
+        serializer = RegistrationPathSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class RegistrationPathDetail(APIView):
+    def get_object(self, pk):
+        try:
+            return RegistrationPath.objects.get(pk=pk)
+        except RegistrationPath.DoesNotExist:
+            raise Http404
+    
+    @swagger_auto_schema(
+        query_serializer=RegistrationPathSerializer,
+        responses={200: RegistrationPathSerializer},
+        tags=['RegistrationPath'],
+    )
+    def get(self, request, pk, format=None):
+        registrationpath = self.get_object(pk)
+        serializer = RegistrationPathSerializer(registrationpath)
+        return Response(serializer.data)
+    
+    @swagger_auto_schema(
+        query_serializer=RegistrationPathSerializer,
+        request_body=RegistrationPathSerializer,
+        responses={200: RegistrationPathSerializer},
+        tags=['RegistrationPath']
+    )
+    def put(self, request, pk, format=None):
+        registrationpath = self.get_object(pk)
+        serializer = RegistrationPathSerializer(registrationpath, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk, format=None):
+        registrationpath = self.get_object(pk)
+        registrationpath.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
