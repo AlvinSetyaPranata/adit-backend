@@ -2,8 +2,8 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Religion, Gender, Citizen, Province, Regency, Subdistrict, Village, RegistrationPath
-from .serializers import ReligionSerializer, ReligionListSerializer, GenderSerializer, GenderListSerializer, CitizenSerializer, CitizenListSerializer, ProvinceSerializer, ProvinceListSerializer, RegencySerializer, RegencyListSerializer, SubdistrictSerializer, SubdistrictListSerializer, VillageSerializer, VillageListSerializer, RegistrationPathSerializer, RegistrationPathListSerializer
+from .models import Religion, Gender, Citizen, Province, Regency, Subdistrict, Village, RegistrationPath, Faculty
+from .serializers import ReligionSerializer, ReligionListSerializer, GenderSerializer, GenderListSerializer, CitizenSerializer, CitizenListSerializer, ProvinceSerializer, ProvinceListSerializer, RegencySerializer, RegencyListSerializer, SubdistrictSerializer, SubdistrictListSerializer, VillageSerializer, VillageListSerializer, RegistrationPathSerializer, RegistrationPathListSerializer, FacultySerializer, FacultyListSerializer
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -574,4 +574,73 @@ class RegistrationPathDetail(APIView):
     def delete(self, request, pk, format=None):
         registrationpath = self.get_object(pk)
         registrationpath.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class FacultyList(APIView):
+
+    @swagger_auto_schema(
+        query_serializer=FacultyListSerializer,
+        responses={200: FacultySerializer(many=True)},
+        tags=['Faculty'],
+    )
+        
+    def get(self, request, format=None):
+        Faculties = Faculty.objects.all()
+        serializer = FacultySerializer(Faculties, many=True)
+        return Response(serializer.data)
+    
+    @swagger_auto_schema(
+        operation_description="apiview post description override",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['name','code'],
+            properties={
+                'name': openapi.Schema(type=openapi.TYPE_STRING),
+                'code': openapi.Schema(type=openapi.TYPE_STRING)
+            },
+        ),
+        security=[],
+        tags=['Faculty'],
+    )
+    def post(self, request, format=None):
+        serializer = FacultySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class FacultyDetail(APIView):
+    def get_object(self, pk):
+        try:
+            return Faculty.objects.get(pk=pk)
+        except Faculty.DoesNotExist:
+            raise Http404
+    
+    @swagger_auto_schema(
+        query_serializer=FacultySerializer,
+        responses={200: FacultySerializer},
+        tags=['Faculty'],
+    )
+    def get(self, request, pk, format=None):
+        faculty = self.get_object(pk)
+        serializer = FacultySerializer(faculty)
+        return Response(serializer.data)
+    
+    @swagger_auto_schema(
+        query_serializer=FacultySerializer,
+        request_body=FacultySerializer,
+        responses={200: FacultySerializer},
+        tags=['Faculty']
+    )
+    def put(self, request, pk, format=None):
+        faculty = self.get_object(pk)
+        serializer = FacultySerializer(faculty, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk, format=None):
+        faculty = self.get_object(pk)
+        faculty.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
