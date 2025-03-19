@@ -71,3 +71,11 @@ class Faculty(models.Model):
 
     class Meta:
         ordering = ['name']
+
+class StudyProgram(models.Model):
+    name = models.CharField(max_length=100)
+    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
+    code = models.CharField(max_length=10)
+
+    class Meta:
+        ordering = ['name']

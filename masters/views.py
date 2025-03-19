@@ -2,8 +2,8 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Religion, Gender, Citizen, Province, Regency, Subdistrict, Village, RegistrationPath, Faculty
-from .serializers import ReligionSerializer, ReligionListSerializer, GenderSerializer, GenderListSerializer, CitizenSerializer, CitizenListSerializer, ProvinceSerializer, ProvinceListSerializer, RegencySerializer, RegencyListSerializer, SubdistrictSerializer, SubdistrictListSerializer, VillageSerializer, VillageListSerializer, RegistrationPathSerializer, RegistrationPathListSerializer, FacultySerializer, FacultyListSerializer
+from .models import Religion, Gender, Citizen, Province, Regency, Subdistrict, Village, RegistrationPath, Faculty, StudyProgram
+from .serializers import ReligionSerializer, ReligionListSerializer, GenderSerializer, GenderListSerializer, CitizenSerializer, CitizenListSerializer, ProvinceSerializer, ProvinceListSerializer, RegencySerializer, RegencyListSerializer, SubdistrictSerializer, SubdistrictListSerializer, VillageSerializer, VillageListSerializer, RegistrationPathSerializer, RegistrationPathListSerializer, FacultySerializer, FacultyListSerializer, StudyProgramSerializer, StudyProgramListSerializer
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -643,4 +643,86 @@ class FacultyDetail(APIView):
     def delete(self, request, pk, format=None):
         faculty = self.get_object(pk)
         faculty.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class StudyProgramList(APIView):
+
+    @swagger_auto_schema(
+        query_serializer=StudyProgramListSerializer,
+        responses={200: StudyProgramSerializer(many=True)},
+        tags=['StudyProgram'],
+    )
+
+    def get(self, request, format=None):
+        Studyprograms = StudyProgram.objects.all()
+        serializer = StudyProgramSerializer(Studyprograms, many=True)
+        return Response(serializer.data)
+    
+    @swagger_auto_schema(
+        operation_description="Create a new Study Program",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['name', 'faculty', 'code'],
+            properties={
+                'name': openapi.Schema(type=openapi.TYPE_STRING),
+                'faculty': openapi.Schema(type=openapi.TYPE_INTEGER),
+                'code': openapi.Schema(type=openapi.TYPE_STRING)
+            },
+        ),
+        security=[],
+        tags=['StudyProgram'],
+    )
+
+    def post(self, request, format=None):
+        serializer = StudyProgramSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class StudyProgramDetail(APIView):
+    def get_object(self, pk):
+        try:
+            return StudyProgram.objects.get(pk=pk)
+        except StudyProgram.DoesNotExist:
+            raise Http404
+        
+    @swagger_auto_schema(
+        responses={200: StudyProgramSerializer},
+        tags=['StudyProgram'],
+    )
+
+    def get(self, request, pk, format=None):
+        studyprogram = self.get_object(pk)
+        serializer = StudyProgramSerializer(studyprogram)
+        return Response(serializer.data)
+    
+    @swagger_auto_schema(
+        query_serializer=FacultySerializer,
+        responses={200: FacultySerializer},
+        tags=['Faculty'],
+    )
+    def get(self, request, pk, format=None):
+        faculty = self.get_object(pk)
+        serializer = FacultySerializer(faculty)
+        return Response(serializer.data)
+    
+    @swagger_auto_schema(
+        query_serializer=StudyProgramSerializer,
+        request_body=StudyProgramSerializer,
+        responses={200: StudyProgramSerializer},
+        tags=['StudyProgram']
+    )
+    def put(self, request, pk, format=None):
+        studyprogram = self.get_object(pk)
+        serializer = StudyProgramSerializer(studyprogram, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk, format=None):
+        studyprogram = self.get_object(pk)
+        studyprogram.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
