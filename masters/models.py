@@ -79,3 +79,9 @@ class StudyProgram(models.Model):
 
     class Meta:
         ordering = ['name']
+
+class RegistrationPeriod(models.Model):
+    period = models.CharField(max_length=9, )
+
+    class Meta:
+        ordering = ['period']

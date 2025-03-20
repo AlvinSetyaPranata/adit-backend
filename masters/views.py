@@ -2,8 +2,8 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Religion, Gender, Citizen, Province, Regency, Subdistrict, Village, RegistrationPath, Faculty, StudyProgram
-from .serializers import ReligionSerializer, ReligionListSerializer, GenderSerializer, GenderListSerializer, CitizenSerializer, CitizenListSerializer, ProvinceSerializer, ProvinceListSerializer, RegencySerializer, RegencyListSerializer, SubdistrictSerializer, SubdistrictListSerializer, VillageSerializer, VillageListSerializer, RegistrationPathSerializer, RegistrationPathListSerializer, FacultySerializer, FacultyListSerializer, StudyProgramSerializer, StudyProgramListSerializer
+from .models import Religion, Gender, Citizen, Province, Regency, Subdistrict, Village, RegistrationPath, Faculty, StudyProgram, RegistrationPeriod
+from .serializers import ReligionSerializer, ReligionListSerializer, GenderSerializer, GenderListSerializer, CitizenSerializer, CitizenListSerializer, ProvinceSerializer, ProvinceListSerializer, RegencySerializer, RegencyListSerializer, SubdistrictSerializer, SubdistrictListSerializer, VillageSerializer, VillageListSerializer, RegistrationPathSerializer, RegistrationPathListSerializer, FacultySerializer, FacultyListSerializer, StudyProgramSerializer, StudyProgramListSerializer, RegistrationPeriodSerializer, RegistrationPeriodListSerializer
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -726,3 +726,69 @@ class StudyProgramDetail(APIView):
         studyprogram = self.get_object(pk)
         studyprogram.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class RegistrationPeriodList(APIView):
+
+    @swagger_auto_schema(
+        responses={200: RegistrationPeriodSerializer(many=True)},
+        tags=['RegistrationPeriod'],
+    )
+    def get(self, request, format=None):
+        periods = RegistrationPeriod.objects.all()
+        serializer = RegistrationPeriodSerializer(periods, many=True)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        operation_description="Create a new Registration Period",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['period'],
+            properties={
+                'period': openapi.Schema(type=openapi.TYPE_STRING, description="Format YYYY/YYYY"),
+            },
+        ),
+        tags=['RegistrationPeriod'],
+    )
+    def post(self, request, format=None):
+        serializer = RegistrationPeriodSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class RegistrationPeriodDetail(APIView):
+    
+    def get_object(self, pk):
+        try:
+            return RegistrationPeriod.objects.get(pk=pk)
+        except RegistrationPeriod.DoesNotExist:
+            raise Http404
+
+    @swagger_auto_schema(
+        responses={200: RegistrationPeriodSerializer},
+        tags=['RegistrationPeriod'],
+    )
+    def get(self, request, pk, format=None):
+        period = self.get_object(pk)
+        serializer = RegistrationPeriodSerializer(period)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        request_body=RegistrationPeriodSerializer,
+        responses={200: RegistrationPeriodSerializer},
+        tags=['RegistrationPeriod'],
+    )
+    def put(self, request, pk, format=None):
+        period = self.get_object(pk)
+        serializer = RegistrationPeriodSerializer(period, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        period = self.get_object(pk)
+        period.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    
