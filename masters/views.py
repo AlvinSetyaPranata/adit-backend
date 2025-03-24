@@ -2,8 +2,8 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Religion, Gender, Citizen, Province, Regency, Subdistrict, Village, RegistrationPath, Faculty, StudyProgram, RegistrationPeriod
-from .serializers import ReligionSerializer, ReligionListSerializer, GenderSerializer, GenderListSerializer, CitizenSerializer, CitizenListSerializer, ProvinceSerializer, ProvinceListSerializer, RegencySerializer, RegencyListSerializer, SubdistrictSerializer, SubdistrictListSerializer, VillageSerializer, VillageListSerializer, RegistrationPathSerializer, RegistrationPathListSerializer, FacultySerializer, FacultyListSerializer, StudyProgramSerializer, StudyProgramListSerializer, RegistrationPeriodSerializer, RegistrationPeriodListSerializer
+from .models import Religion, Gender, Citizen, Province, Regency, Subdistrict, Village, RegistrationPath, Faculty, StudyProgram, RegistrationPeriod, School
+from .serializers import ReligionSerializer, ReligionListSerializer, GenderSerializer, GenderListSerializer, CitizenSerializer, CitizenListSerializer, ProvinceSerializer, ProvinceListSerializer, RegencySerializer, RegencyListSerializer, SubdistrictSerializer, SubdistrictListSerializer, VillageSerializer, VillageListSerializer, RegistrationPathSerializer, RegistrationPathListSerializer, FacultySerializer, FacultyListSerializer, StudyProgramSerializer, StudyProgramListSerializer, RegistrationPeriodSerializer, RegistrationPeriodListSerializer, SchoolSerializer, SchoolListSerializer
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -730,7 +730,7 @@ class StudyProgramDetail(APIView):
 class RegistrationPeriodList(APIView):
 
     @swagger_auto_schema(
-        responses={200: RegistrationPeriodSerializer(many=True)},
+        responses={200: RegistrationPeriodListSerializer(many=True)},
         tags=['RegistrationPeriod'],
     )
     def get(self, request, format=None):
@@ -747,6 +747,7 @@ class RegistrationPeriodList(APIView):
                 'period': openapi.Schema(type=openapi.TYPE_STRING, description="Format YYYY/YYYY"),
             },
         ),
+        security=[],
         tags=['RegistrationPeriod'],
     )
     def post(self, request, format=None):
@@ -791,4 +792,69 @@ class RegistrationPeriodDetail(APIView):
         period.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    
+class SchoolList(APIView):
+
+    @swagger_auto_schema(
+        responses={200: SchoolListSerializer(many=True)},
+        tags=['School'],
+    )
+    def get(self, request, format=None):
+        schools = School.objects.all()
+        serializer = SchoolSerializer(schools, many=True)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        operation_description="Create a new School",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['name', 'code', 'address', 'phone'],
+            properties={
+                'name': openapi.Schema(type=openapi.TYPE_STRING),
+                'code': openapi.Schema(type=openapi.TYPE_STRING),
+                'address': openapi.Schema(type=openapi.TYPE_STRING),
+                'phone': openapi.Schema(type=openapi.TYPE_STRING),
+            },
+        ),
+        security=[],
+        tags=['School'],
+    )
+    def post(self, request, format=None):
+        serializer = SchoolSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class SchoolDetail(APIView):
+    def get_object(self, pk):
+        try:
+            return School.objects.get(pk=pk)
+        except School.DoesNotExist:
+            raise Http404
+
+    @swagger_auto_schema(
+        responses={200: SchoolSerializer()},
+        tags=['School'],
+    )
+    def get(self, request, pk, format=None):
+        school = self.get_object(pk)
+        serializer = SchoolSerializer(school)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        request_body=SchoolSerializer,
+        responses={200: SchoolSerializer},
+        tags=['School'],
+    )
+    def put(self, request, pk, format=None):
+        school = self.get_object(pk)
+        serializer = SchoolSerializer(school, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        school = self.get_object(pk)
+        school.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

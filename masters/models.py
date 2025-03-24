@@ -85,3 +85,12 @@ class RegistrationPeriod(models.Model):
 
     class Meta:
         ordering = ['period']
+
+class School(models.Model):
+    name = models.CharField(max_length=100)
+    code = models.CharField(max_length=10)
+    address = models.TextField()
+    phone = models.CharField(max_length=15, unique=True)
+
+    class Meta:
+        ordering = ['name']
