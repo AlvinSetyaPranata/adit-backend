@@ -2,8 +2,8 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Religion, Gender, Citizen, Province, Regency, Subdistrict, Village, RegistrationPath, Faculty, StudyProgram, RegistrationPeriod, School, Job
-from .serializers import ReligionSerializer, ReligionListSerializer, GenderSerializer, GenderListSerializer, CitizenSerializer, CitizenListSerializer, ProvinceSerializer, ProvinceListSerializer, RegencySerializer, RegencyListSerializer, SubdistrictSerializer, SubdistrictListSerializer, VillageSerializer, VillageListSerializer, RegistrationPathSerializer, RegistrationPathListSerializer, FacultySerializer, FacultyListSerializer, StudyProgramSerializer, StudyProgramListSerializer, RegistrationPeriodSerializer, RegistrationPeriodListSerializer, SchoolSerializer, SchoolListSerializer, JobSerializer, JobListSerializer
+from .models import Religion, Gender, Citizen, Province, Regency, Subdistrict, Village, RegistrationPath, Faculty, StudyProgram, RegistrationPeriod, School, Job, Income
+from .serializers import ReligionSerializer, ReligionListSerializer, GenderSerializer, GenderListSerializer, CitizenSerializer, CitizenListSerializer, ProvinceSerializer, ProvinceListSerializer, RegencySerializer, RegencyListSerializer, SubdistrictSerializer, SubdistrictListSerializer, VillageSerializer, VillageListSerializer, RegistrationPathSerializer, RegistrationPathListSerializer, FacultySerializer, FacultyListSerializer, StudyProgramSerializer, StudyProgramListSerializer, RegistrationPeriodSerializer, RegistrationPeriodListSerializer, SchoolSerializer, SchoolListSerializer, JobSerializer, JobListSerializer, IncomeSerializer, IncomeListSerializer
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -860,7 +860,6 @@ class SchoolDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class JobList(APIView):
-    operation_description="tempat untuk menampung Pekerjaan orangtua",
     @swagger_auto_schema(
         responses={200: JobListSerializer(many=True)},
         tags=['Job'],
@@ -923,4 +922,69 @@ class JobDetail(APIView):
     def delete(self, request, pk, format=None):
         job = self.get_object(pk)
         job.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class IncomeList(APIView):
+    @swagger_auto_schema(
+        responses={200: IncomeListSerializer(many=True)},
+        tags=['Income'],
+    )
+
+    def get(self, request, format=None):
+        incomes = Income.objects.all()
+        serializer = IncomeSerializer(incomes, many=True)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        operation_description="Create a new income",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['income'],
+            properties={
+                'income': openapi.Schema(type=openapi.TYPE_STRING),
+            },
+        ),
+        security=[],
+        tags=['Income'],
+    )
+
+    def post(self, request, format=None):
+        serializer = IncomeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class IncomeDetail(APIView):
+    def get_object(self, pk):
+        try:
+            return Income.objects.get(pk=pk)
+        except Income.DoesNotExist:
+            raise Http404
+        
+    @swagger_auto_schema(
+        responses={200: IncomeSerializer()},
+        tags=['Income'],
+    )
+    def get(self, request, pk, format=None):
+        income = self.get_object(pk)
+        serializer = IncomeSerializer(income)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        request_body=IncomeSerializer,
+        responses={200: IncomeSerializer},
+        tags=['Income'],
+    )
+    def put(self, request, pk, format=None):
+        income = self.get_object(pk)
+        serializer = IncomeSerializer(income, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        income = self.get_object(pk)
+        income.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

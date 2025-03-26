@@ -100,3 +100,9 @@ class Job(models.Model):
 
     class Meta:
         ordering = ['job']
+
+class Income(models.Model):
+    income = models.CharField(max_length=50)
+
+    class Meta:
+        ordering = ['income']
