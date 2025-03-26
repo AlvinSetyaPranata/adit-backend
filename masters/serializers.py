@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Religion, Gender, Citizen, Province, Regency, Subdistrict, Village, RegistrationPath, Faculty, StudyProgram, RegistrationPeriod, School
+from .models import Religion, Gender, Citizen, Province, Regency, Subdistrict, Village, RegistrationPath, Faculty, StudyProgram, RegistrationPeriod, School, Job
 
 class ReligionSerializer(serializers.ModelSerializer):
     # id = serializers.IntegerField(read_only=True)
@@ -148,5 +148,11 @@ class SchoolListSerializer(serializers.ModelSerializer):
     address = serializers.CharField(max_length=255)
     phone = serializers.CharField(max_length=15)
 
-    
-        
+class JobSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Job
+        fields = '__all__'
+
+class JobListSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    job = serializers.CharField(max_length=100)       

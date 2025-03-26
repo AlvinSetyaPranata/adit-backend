@@ -94,3 +94,9 @@ class School(models.Model):
 
     class Meta:
         ordering = ['name']
+
+class Job(models.Model):
+    job = models.CharField(max_length=100)
+
+    class Meta:
+        ordering = ['job']

@@ -2,8 +2,8 @@ from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Religion, Gender, Citizen, Province, Regency, Subdistrict, Village, RegistrationPath, Faculty, StudyProgram, RegistrationPeriod, School
-from .serializers import ReligionSerializer, ReligionListSerializer, GenderSerializer, GenderListSerializer, CitizenSerializer, CitizenListSerializer, ProvinceSerializer, ProvinceListSerializer, RegencySerializer, RegencyListSerializer, SubdistrictSerializer, SubdistrictListSerializer, VillageSerializer, VillageListSerializer, RegistrationPathSerializer, RegistrationPathListSerializer, FacultySerializer, FacultyListSerializer, StudyProgramSerializer, StudyProgramListSerializer, RegistrationPeriodSerializer, RegistrationPeriodListSerializer, SchoolSerializer, SchoolListSerializer
+from .models import Religion, Gender, Citizen, Province, Regency, Subdistrict, Village, RegistrationPath, Faculty, StudyProgram, RegistrationPeriod, School, Job
+from .serializers import ReligionSerializer, ReligionListSerializer, GenderSerializer, GenderListSerializer, CitizenSerializer, CitizenListSerializer, ProvinceSerializer, ProvinceListSerializer, RegencySerializer, RegencyListSerializer, SubdistrictSerializer, SubdistrictListSerializer, VillageSerializer, VillageListSerializer, RegistrationPathSerializer, RegistrationPathListSerializer, FacultySerializer, FacultyListSerializer, StudyProgramSerializer, StudyProgramListSerializer, RegistrationPeriodSerializer, RegistrationPeriodListSerializer, SchoolSerializer, SchoolListSerializer, JobSerializer, JobListSerializer
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -857,4 +857,70 @@ class SchoolDetail(APIView):
     def delete(self, request, pk, format=None):
         school = self.get_object(pk)
         school.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class JobList(APIView):
+    operation_description="tempat untuk menampung Pekerjaan orangtua",
+    @swagger_auto_schema(
+        responses={200: JobListSerializer(many=True)},
+        tags=['Job'],
+    )
+
+    def get(self, request, format=None):
+        jobs = Job.objects.all()
+        serializer = JobSerializer(jobs, many=True)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        operation_description="Create a new Job",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['job'],
+            properties={
+                'job': openapi.Schema(type=openapi.TYPE_STRING),
+            },
+        ),
+        security=[],
+        tags=['Job'],
+    )
+
+    def post(self, request, format=None):
+        serializer = JobSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class JobDetail(APIView):
+    def get_object(self, pk):
+        try:
+            return Job.objects.get(pk=pk)
+        except Job.DoesNotExist:
+            raise Http404
+        
+    @swagger_auto_schema(
+        responses={200: JobSerializer()},
+        tags=['Job'],
+    )
+    def get(self, request, pk, format=None):
+        job = self.get_object(pk)
+        serializer = JobSerializer(job)
+        return Response(serializer.data)
+
+    @swagger_auto_schema(
+        request_body=JobSerializer,
+        responses={200: JobSerializer},
+        tags=['Job'],
+    )
+    def put(self, request, pk, format=None):
+        job = self.get_object(pk)
+        serializer = JobSerializer(job, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        job = self.get_object(pk)
+        job.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
