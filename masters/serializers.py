@@ -153,15 +153,15 @@ class JobSerializer(serializers.ModelSerializer):
         model = Job
         fields = '__all__'
 
-class JobListSerializer(serializers.ModelSerializer):
+class JobListSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
-    job = serializers.CharField(max_length=100)
+    name = serializers.CharField(max_length=100)
 
 class IncomeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Income
         fields = '__all__'
 
-class IncomeListSerializer(serializers.ModelSerializer):
+class IncomeListSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
-    income = serializers.CharField(max_length=50)
+    amount = serializers.CharField(max_length=50)

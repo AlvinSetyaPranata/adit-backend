@@ -96,13 +96,19 @@ class School(models.Model):
         ordering = ['name']
 
 class Job(models.Model):
-    job = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
 
     class Meta:
-        ordering = ['job']
+        ordering = ['name']
+    
+    def __str__(self):
+        return self.name
 
 class Income(models.Model):
-    income = models.CharField(max_length=50)
+    amount = models.CharField(max_length=50)
 
     class Meta:
-        ordering = ['income']
+        ordering = ['amount']
+        
+    def __str__(self):
+        return f"Rp {self.amount}"

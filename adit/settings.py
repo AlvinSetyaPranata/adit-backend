@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'base',
     'masters',
+    'pmb',
 ]
 
 REST_FRAMEWORK = {

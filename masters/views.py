@@ -864,10 +864,9 @@ class JobList(APIView):
         responses={200: JobListSerializer(many=True)},
         tags=['Job'],
     )
-
     def get(self, request, format=None):
         jobs = Job.objects.all()
-        serializer = JobSerializer(jobs, many=True)
+        serializer = JobListSerializer(jobs, many=True)
         return Response(serializer.data)
 
     @swagger_auto_schema(
