@@ -8,6 +8,9 @@ class Religion(models.Model):
     class Meta:
         ordering = ['name']
 
+    def __str__(self):
+        return self.name
+
 class Gender(models.Model):
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=10)
@@ -15,6 +18,8 @@ class Gender(models.Model):
     class Meta:
         ordering = ['name']
 
+    def __str__(self):
+        return self.name
 
 class Citizen(models.Model):
     name = models.CharField(max_length=100)
@@ -22,6 +27,9 @@ class Citizen(models.Model):
 
     class Meta:
         ordering = ['name']
+    
+    def __str__(self):
+        return self.name
 
 class Province(models.Model):
     name = models.CharField(max_length=100)
@@ -30,6 +38,9 @@ class Province(models.Model):
 
     class Meta:
         ordering = ['name']
+
+    def __str__(self):
+        return self.name
 
 class Regency(models.Model):
     name = models.CharField(max_length=100)
@@ -40,6 +51,9 @@ class Regency(models.Model):
     class Meta:
         ordering = ['name']
 
+    def __str__(self):
+        return self.name
+
 class Subdistrict(models.Model):
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=10, unique=True)
@@ -48,6 +62,9 @@ class Subdistrict(models.Model):
 
     class Meta:
         ordering = ['name']
+
+    def __str__(self):
+        return self.name
 
 class Village(models.Model):
     name = models.CharField(max_length=100)
@@ -58,6 +75,9 @@ class Village(models.Model):
     class Meta:
         ordering = ['name']
 
+    def __str__(self):
+        return self.name
+
 class RegistrationPath(models.Model):
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=10)
@@ -65,12 +85,18 @@ class RegistrationPath(models.Model):
     class Meta:
         ordering = ['name']
 
+    def __str__(self):
+        return self.name
+
 class Faculty(models.Model):
     name = models.CharField(max_length=100)
     code = models.CharField(max_length=10)
 
     class Meta:
         ordering = ['name']
+
+    def __str__(self):
+        return self.name
 
 class StudyProgram(models.Model):
     name = models.CharField(max_length=100)
@@ -80,11 +106,17 @@ class StudyProgram(models.Model):
     class Meta:
         ordering = ['name']
 
+    def __str__(self):
+        return self.name
+
 class RegistrationPeriod(models.Model):
     period = models.CharField(max_length=9, )
 
     class Meta:
         ordering = ['period']
+
+    def __str__(self):
+        return self.period
 
 class School(models.Model):
     name = models.CharField(max_length=100)
@@ -94,6 +126,9 @@ class School(models.Model):
 
     class Meta:
         ordering = ['name']
+
+    def __str__(self):
+        return self.name
 
 class Job(models.Model):
     name = models.CharField(max_length=100)
