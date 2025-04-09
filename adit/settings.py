@@ -104,8 +104,12 @@ WSGI_APPLICATION = 'adit.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'adit',
+        'USER': 'postgres',
+        'PASSWORD': 'rahasia',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
